@@ -1,6 +1,7 @@
 import tkinter as tk
-from tkinter import messagebox, Button, Label, PhotoImage, filedialog
-from PIL  import Image, ImageTk, ImageDraw
+import os
+from tkinter import messagebox, filedialog
+from PIL import Image, ImageTk, ImageDraw
 
 
 class CuentaBancaria:
@@ -10,7 +11,6 @@ class CuentaBancaria:
         self.saldo = saldo
         self.tipo_cuenta = tipo_cuenta
         self.transacciones = []
-                 
 
     def consultar_saldo(self):
         return self.saldo
@@ -39,6 +39,7 @@ class CuentaBancaria:
             return True
         else:
             return False
+
 
 class GestorUsuarios:
     MAX_USUARIOS = 5
@@ -69,14 +70,12 @@ class GestorUsuarios:
     def obtener_cuenta(self, usuario):
         return self.cuentas.get(usuario, None)
 
+
 class InterfazBanco:
     def __init__(self, root):
         self.root = root
         self.root.title("Banco Internacional Meza")
         self.root.geometry("350x550")
-        imagen= Image.open("bank.png")
-        imagen= imagen.resize((100, 100))
-        self.imagen= ImageTk.PhotoImage(imagen)
         root.configure(bg="lightblue")
         self.imagen_usuario = None
 
@@ -96,9 +95,6 @@ class InterfazBanco:
         tk.Label(self.root, text="Contraseña:").pack(pady=5)
         contrasena_entry = tk.Entry(self.root, show="*")
         contrasena_entry.pack(pady=5)
-        
-        label_imagen= tk.Label(self.root, image= self.imagen)
-        label_imagen.pack(pady=20)
 
         def validar_login():
             usuario = usuario_entry.get()
@@ -116,36 +112,15 @@ class InterfazBanco:
     def mostrar_pantalla_principal(self):
         self.limpiar_pantalla()
         tk.Label(self.root, text="Menú Principal", font=("Arial", 16)).pack(pady=10)
- 
-              
-        imaBoton= Image.open("cons.png")
-        ima_bot= imaBoton.resize((50,50))
-        self.imagen_boton= ImageTk.PhotoImage(ima_bot)
-        
-        imaBoton1= Image.open("depo.png")
-        ima_bot1= imaBoton1.resize((50,50))
-        self.imagen_boton1= ImageTk.PhotoImage(ima_bot1)
-        
-        imaBoton2= Image.open("reti.png")
-        ima_bot2= imaBoton2.resize((50,50))
-        self.imagen_boton2= ImageTk.PhotoImage(ima_bot2)
-        
-        imaBoton3= Image.open("transf.png")
-        ima_tran= imaBoton3.resize((50,50))
-        self.imagen_transfe= ImageTk.PhotoImage(ima_tran)
-        
-        imaBoton4= Image.open("salir.png")
-        ima_sal= imaBoton4.resize((50,50))
-        self.imagen_salir= ImageTk.PhotoImage(ima_sal)
-        
-        self.boton_foto_usuario= tk.Button(self.root, text="Añadir Foto", command= self.agregar_foto_usuario)
+
+        self.boton_foto_usuario = tk.Button(self.root, text="Añadir Foto", command=self.agregar_foto_usuario)
         self.boton_foto_usuario.pack(pady=10)
-        
-        tk.Button(self.root, image=self.imagen_boton, text="Consultar Saldo", compound="top", command=self.mostrar_saldo).pack(pady=5)
-        tk.Button(self.root, image=self.imagen_boton1, text="Depositar", compound="top", command=self.mostrar_ventana_deposito).pack(pady=5)
-        tk.Button(self.root, image=self.imagen_boton2, text="Retirar", compound="top", command=self.mostrar_ventana_retiro).pack(pady=5)
-        tk.Button(self.root, image=self.imagen_transfe, text="Transferir", compound="top", command=self.mostrar_ventana_transferencia).pack(pady=5)
-        tk.Button(self.root, image=self.imagen_salir, text="Cerrar Sesión", compound="top", command=self.mostrar_pantalla_login).pack(pady=5)
+
+        tk.Button(self.root, text="Consultar Saldo", command=self.mostrar_saldo).pack(pady=5)
+        tk.Button(self.root, text="Depositar", command=self.mostrar_ventana_deposito).pack(pady=5)
+        tk.Button(self.root, text="Retirar", command=self.mostrar_ventana_retiro).pack(pady=5)
+        tk.Button(self.root, text="Transferir", command=self.mostrar_ventana_transferencia).pack(pady=5)
+        tk.Button(self.root, text="Cerrar Sesión", command=self.mostrar_pantalla_login).pack(pady=5)
 
     def mostrar_gestion_usuarios(self):
         self.limpiar_pantalla()
@@ -178,25 +153,24 @@ class InterfazBanco:
     def limpiar_pantalla(self):
         for widget in self.root.winfo_children():
             widget.destroy()
-            
+
     def agregar_foto_usuario(self):
-        ruta_imagen= filedialog.askopenfilename(
+        ruta_imagen = filedialog.askopenfilename(
             filetypes=[("Archivos de imagen", "*.png;*.jpg;*.jpeg")]
         )
         if not ruta_imagen:
             return
-        
-        imagen_original= Image.open(ruta_imagen).resize((100, 100))
-        mascarilla= Image.new("L", (100, 100), 0)
-        draw= ImageDraw.Draw(mascarilla)
+
+        imagen_original = Image.open(ruta_imagen).resize((100, 100))
+        mascarilla = Image.new("L", (100, 100), 0)
+        draw = ImageDraw.Draw(mascarilla)
         draw.ellipse((0, 0, 100, 100), fill=255)
-        imagen_redonda= Image.new("RGBA",(100, 100))
+        imagen_redonda = Image.new("RGBA", (100, 100))
         imagen_redonda.paste(imagen_original, (0, 0), mask=mascarilla)
-        
-        self.imagen_usuario= ImageTk.PhotoImage(imagen_redonda)
-        
-        self.boton_foto_usuario.config(image= self.imagen_usuario, text="")
-        
+
+        self.imagen_usuario = ImageTk.PhotoImage(imagen_redonda)
+
+        self.boton_foto_usuario.config(image=self.imagen_usuario, text="")
 
     def mostrar_saldo(self):
         cuenta = self.gestor_usuarios.obtener_cuenta(self.usuario_actual)
@@ -274,9 +248,6 @@ class InterfazBanco:
         tk.Button(self.root, text="Transferir", command=transferir).pack(pady=10)
         tk.Button(self.root, text="Volver", command=self.mostrar_pantalla_principal).pack(pady=5)
 
-    def limpiar_pantalla(self):
-        for widget in self.root.winfo_children():
-            widget.destroy()
 
 if __name__ == "__main__":
     root = tk.Tk()
